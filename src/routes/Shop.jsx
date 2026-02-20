@@ -35,6 +35,13 @@ export default function Shop() {
     return;
   }
 
+  const [coupon, setCoupon] = useState("");
+
+  <input
+    placeholder="Coupon"
+    onChange={(e) => setCoupon(e.target.value)}
+  />
+
   return (
     <div className="grid">
       {products.map(p => (
