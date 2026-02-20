@@ -32,7 +32,11 @@ export default function Shop() {
 
   if (!user) {
     alert("Login required");
-    return;
+    return (
+      <div style={{ padding: '4rem', color: 'white' }}>
+        <h1>Shop</h1>
+      </div>
+    )
   }
 
   const [coupon, setCoupon] = useState("");
