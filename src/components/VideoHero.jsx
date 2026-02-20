@@ -1,17 +1,17 @@
 import { useRef } from "react";
 
 export default function VideoHero() {
-  const ref = useRef();
+  const videoRef = useRef();
 
   const toggleSound = () => {
-    ref.current.muted = !ref.current.muted;
+    videoRef.current.muted = !videoRef.current.muted;
   };
 
   return (
     <section className="hero">
       <video
-        ref={ref}
-        src="https://YOUR_R2_PUBLIC_URL/video.mp4"
+        ref={videoRef}
+        src="https://your-r2-public-url/video.mp4"
         autoPlay
         loop
         muted
