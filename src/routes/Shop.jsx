@@ -1,6 +1,15 @@
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import { httpsCallable } from "firebase/functions";
+import { functions } from "../firebase";
+
+const buy = async (product) => {
+  const createSession = httpsCallable(functions, "createStripeSession");
+  const res = await createSession(product);
+  window.location.href = res.data.url;
+};
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
@@ -20,6 +29,7 @@ export default function Shop() {
           <img src={p.image} />
           <h3>{p.title}</h3>
           <p>£{p.price}</p>
+          <button onClick={() => buy(p)}>Buy</button>
         </div>
       ))}
     </div>
