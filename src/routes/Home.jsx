@@ -1,5 +1,5 @@
-import VideoHero from "../components/VideoHero";
+import VideoHero from '../components/VideoHero'
 
 export default function Home() {
-  return <VideoHero />;
+  return <VideoHero />
 }
