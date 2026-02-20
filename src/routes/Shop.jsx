@@ -4,12 +4,20 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "../firebase";
+import { auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 const buy = async (product) => {
   const createSession = httpsCallable(functions, "createStripeSession");
   const res = await createSession(product);
   window.location.href = res.data.url;
 };
+
+const [user, setUser] = useState(null);
+
+useEffect(() => {
+  onAuthStateChanged(auth, (u) => setUser(u));
+}, []);
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
@@ -21,6 +29,11 @@ export default function Shop() {
     };
     load();
   }, []);
+
+  if (!user) {
+    alert("Login required");
+    return;
+  }
 
   return (
     <div className="grid">
