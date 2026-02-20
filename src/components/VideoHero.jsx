@@ -1,11 +1,11 @@
-import { useRef } from "react";
+import { useRef } from 'react'
 
 export default function VideoHero() {
-  const videoRef = useRef();
+  const videoRef = useRef()
 
   const toggleSound = () => {
-    videoRef.current.muted = !videoRef.current.muted;
-  };
+    videoRef.current.muted = !videoRef.current.muted
+  }
 
   return (
     <section className="hero">
@@ -23,5 +23,5 @@ export default function VideoHero() {
         <p>Video Editor · Filmmaker</p>
       </div>
     </section>
-  );
+  )
 }
