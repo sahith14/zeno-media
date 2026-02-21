@@ -1,12 +1,32 @@
-// functions/index.js
-const { onRequest } = require('firebase-functions/v2/https');
-const admin = require('firebase-admin');
-admin.initializeApp();
+const functions = require("firebase-functions");
+const Stripe = require("stripe");
 
-exports.createStripeCheckoutSession = require('./stripe-webhook').createStripeCheckoutSession;
-exports.stripeWebhook = require('./stripe-webhook').stripeWebhook;
-exports.createRazorpayOrder = require('./razorpay-webhook').createRazorpayOrder;
-exports.razorpayWebhook = require('./razorpay-webhook').razorpayWebhook;
-exports.getVideoUrl = require('./download').getVideoUrl;
-exports.getDownloadUrl = require('./download').getDownloadUrl;
-exports.generateR2UploadUrl = require('./r2-upload').generateR2UploadUrl;
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+exports.stripeWebhook = functions
+  .runWith({
+    secrets: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"]
+  })
+  .https.onRequest(async (req, res) => {
+    const sig = req.headers["stripe-signature"];
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.rawBody,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error("Webhook signature verification failed.", err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+      console.log("Payment successful for session:", session.id);
+      // TODO: handle digital file delivery here
+    }
+
+    res.json({ received: true });
+  });
