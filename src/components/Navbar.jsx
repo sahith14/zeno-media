@@ -2,6 +2,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+
 export default function Navbar() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -28,7 +30,7 @@ export default function Navbar() {
           {currentUser ? (
             <>
               <Link to="/downloads" className="hover:text-gold transition">Downloads</Link>
-              {currentUser.email === 'zenomedia.work@gmail.com' && (
+              {currentUser.email === ADMIN_EMAIL && (
                 <Link to="/admin-7x91k" className="hover:text-gold transition">Admin</Link>
               )}
               <button onClick={handleLogout} className="hover:text-gold transition">Logout</button>
