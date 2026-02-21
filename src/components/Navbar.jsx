@@ -39,7 +39,6 @@ export default function Navbar() {
           <ShoppingBag className="w-7 h-7" />
           <span className="text-lg">0</span>
         </Link>
-        </div>
       </div>
     </nav>
   );
