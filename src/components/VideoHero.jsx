@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import heroVideo from "../assets/hero.mp4";
 
 export default function VideoHero() {
   const videoRef = useRef()
@@ -8,19 +8,19 @@ export default function VideoHero() {
   }
 
   return (
-    <section className="hero">
+    <section className="relative w-full h-screen overflow-hidden">
       <video
-        ref={videoRef}
-        src="https://your-r2-public-url/video.mp4"
+        src={heroVideo}
         autoPlay
         loop
         muted
         playsInline
+        classname="absolute w-full h-full object-cove"
         onClick={toggleSound}
       />
-      <div className="hero-overlay">
-        <h1>ZENO MEDIA</h1>
-        <p>Video Editor · Filmmaker</p>
+      <div className="relative z-10 text-center text-gold">
+        <h1> className="text-6xl font-bold">ZENO MEDIA</h1>
+        <p> className="mt-4">Video Editor · Filmmaker</p>
       </div>
     </section>
   )
