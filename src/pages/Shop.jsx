@@ -2,20 +2,14 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebase/config';
 import { collection, getDocs } from 'firebase/firestore';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import toast from 'react-hot-toast';
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+import { Filter, ChevronDown } from 'lucide-react';
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
-  const { currentUser } = useAuth();
-  const navigate = useNavigate();
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [priceRange, setPriceRange] = useState([20, 690]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -26,119 +20,143 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  const handleStripeCheckout = async (product) => {
-    if (!currentUser) {
-      navigate('/login');
-      return;
-    }
-    const functions = getFunctions();
-    const createCheckout = httpsCallable(functions, 'createStripeCheckoutSession');
-    try {
-      const result = await createCheckout({ productId: product.id, userId: currentUser.uid });
-      const { sessionId } = result.data;
-      const stripe = await stripePromise;
-      await stripe.redirectToCheckout({ sessionId });
-    } catch (error) {
-      toast.error('Checkout failed');
-    }
-  };
-
-  const handleRazorpayCheckout = async (product) => {
-    if (!currentUser) {
-      navigate('/login');
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = async () => {
-      const functions = getFunctions();
-      const createRazorpayOrder = httpsCallable(functions, 'createRazorpayOrder');
-      try {
-        const result = await createRazorpayOrder({ productId: product.id, userId: currentUser.uid });
-        const order = result.data;
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-          amount: order.amount,
-          currency: order.currency,
-          name: 'ZENO MEDIA',
-          description: product.name,
-          order_id: order.id,
-          handler: function (response) {
-            toast.success('Payment successful! Check your email.');
-          },
-          prefill: {
-            email: currentUser.email,
-          },
-        };
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      } catch (error) {
-        toast.error('Razorpay order creation failed');
-      }
-    };
-    document.body.appendChild(script);
-  };
-
   return (
     <>
       <Helmet><title>Shop - ZENO MEDIA</title></Helmet>
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="text-5xl gold-text text-center mb-12">Digital Products</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => {
-            const isOnSale = product.salePrice && product.salePrice < product.price;
-            return (
+      
+      {/* Header */}
+      <section className="pt-32 pb-12 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <div className="text-sm text-gray-500">
+              <span className="text-black">Home</span> &gt; All Products
+            </div>
+            <div className="text-sm text-gray-600">
+              {products.length} products
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center border-b border-gray-200 pb-6">
+            <button 
+              onClick={() => setFilterOpen(!filterOpen)}
+              className="flex items-center space-x-2 text-black"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Browse by</span>
+            </button>
+            
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">Sort by:</span>
+              <button className="flex items-center space-x-1 text-black font-medium">
+                <span>Recommended</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <section className="pb-24 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="flex gap-8">
+            {/* Filter Sidebar */}
+            {filterOpen && (
               <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="bg-gray-900 rounded-lg overflow-hidden border border-gold/20"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="w-64 flex-shrink-0"
               >
-                <div className="relative">
-                  <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover" />
-                  {isOnSale && (
-                    <span className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 text-sm rounded">
-                      {Math.round((1 - product.salePrice / product.price) * 100)}% OFF
-                    </span>
-                  )}
-                </div>
-                <div className="p-6">
-                  <h3 className="text-2xl gold-text mb-2">{product.name}</h3>
-                  <p className="text-gray-400 mb-4">{product.description}</p>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      {isOnSale ? (
-                        <>
-                          <span className="text-2xl font-bold text-gold">£{product.salePrice}</span>
-                          <span className="ml-2 text-sm line-through text-gray-500">£{product.price}</span>
-                        </>
-                      ) : (
-                        <span className="text-2xl font-bold text-gold">£{product.price}</span>
-                      )}
+                <div className="border-t border-gray-200 pt-6">
+                  <h3 className="font-medium mb-4">Filter by</h3>
+                  
+                  {/* Price Range */}
+                  <div className="mb-6">
+                    <h4 className="text-sm text-gray-600 mb-3">Price</h4>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">{priceRange[0]}</span>
+                      <span className="text-sm">-</span>
+                      <span className="text-sm">{priceRange[1]}</span>
                     </div>
-                    <div className="space-x-2">
-                      <button
-                        onClick={() => handleStripeCheckout(product)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                      >
-                        Stripe
-                      </button>
-                      <button
-                        onClick={() => handleRazorpayCheckout(product)}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
-                      >
-                        Razorpay
-                      </button>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1000" 
+                      className="w-full mt-2"
+                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                    />
+                  </div>
+
+                  {/* Color */}
+                  <div className="mb-6">
+                    <h4 className="text-sm text-gray-600 mb-3">Color</h4>
+                    <div className="space-y-2">
+                      {['Black', 'White', 'Red', 'Blue'].map(color => (
+                        <label key={color} className="flex items-center space-x-2">
+                          <input type="checkbox" className="rounded" />
+                          <span className="text-sm">{color}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Size */}
+                  <div className="mb-6">
+                    <h4 className="text-sm text-gray-600 mb-3">Size</h4>
+                    <div className="space-y-2">
+                      {['Small', 'Medium', 'Large'].map(size => (
+                        <label key={size} className="flex items-center space-x-2">
+                          <input type="checkbox" className="rounded" />
+                          <span className="text-sm">{size}</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
                 </div>
               </motion.div>
-            );
-          })}
+            )}
+
+            {/* Products Grid */}
+            <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {products.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="group"
+                  >
+                    <div className="relative aspect-square bg-gray-100 mb-4 overflow-hidden">
+                      <img 
+                        src={product.imageUrl} 
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      />
+                      {product.bestSeller && (
+                        <span className="absolute top-4 left-4 bg-white text-xs px-2 py-1">Best Seller</span>
+                      )}
+                      {product.sale && (
+                        <span className="absolute top-4 right-4 bg-red-600 text-white text-xs px-2 py-1">Sale</span>
+                      )}
+                      {product.new && (
+                        <span className="absolute top-4 right-4 bg-black text-white text-xs px-2 py-1">New</span>
+                      )}
+                    </div>
+                    <h3 className="text-sm text-gray-600 mb-1">{product.name}</h3>
+                    <p className="text-lg font-medium">
+                      £{product.salePrice || product.price}
+                      {product.salePrice && (
+                        <span className="ml-2 text-sm text-gray-400 line-through">£{product.price}</span>
+                      )}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     </>
   );
 }
