@@ -1,32 +1,28 @@
-// package.json (root)
+// functions/package.json
 {
-  "name": "zeno-media",
+  "name": "functions",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Cloud Functions for ZENO MEDIA",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/generate-sitemap.js",
-    "preview": "vite preview"
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
   },
   "dependencies": {
-    "firebase": "^10.7.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.0",
-    "framer-motion": "^10.16.4",
-    "react-helmet-async": "^2.0.4",
-    "@stripe/stripe-js": "^2.1.11",
-    "@stripe/react-stripe-js": "^2.4.0",
-    "react-hot-toast": "^2.4.1",
-    "date-fns": "^2.30.0",
-    "lucide-react": "^0.292.0",
-    "@headlessui/react": "^1.7.17"
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^4.5.0",
+    "stripe": "^14.5.0",
+    "razorpay": "^2.9.2",
+    "@aws-sdk/client-s3": "^3.454.0",
+    "@aws-sdk/s3-request-presigner": "^3.454.0",
+    "@sendgrid/mail": "^7.7.0",
+    "cors": "^2.8.5"
   },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.1.0",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.5",
-    "vite": "^5.0.0"
-  }
+  "private": true
 }
