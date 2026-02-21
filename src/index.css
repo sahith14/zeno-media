@@ -1,0 +1,19 @@
+// src/index.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: black;
+    color: white;
+  }
+  .gold-text {
+    font-family: 'Cinzel', serif;
+    background: linear-gradient(45deg, #CFB53B, #F0E68C, #CFB53B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(207, 181, 59, 0.5);
+  }
+}
