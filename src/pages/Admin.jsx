@@ -8,21 +8,6 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 
-// src/components/AdminRoute.jsx
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
-
-export default function AdminRoute({ children }) {
-  const { currentUser } = useAuth();
-  
-  if (!currentUser) return <Navigate to="/login" />;
-  if (currentUser.email !== ADMIN_EMAIL) return <Navigate to="/" />;
-  
-  return children;
-}
-
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState([]);
