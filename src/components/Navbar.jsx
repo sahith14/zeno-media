@@ -1,74 +1,46 @@
-// src/components/Navbar.jsx
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useState, useEffect } from 'react';
-
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+import { ShoppingBag } from 'lucide-react';
 
 export default function Navbar() {
-  const { currentUser, logout } = useAuth();
   const location = useLocation();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const isActive = (path) => location.pathname === path;
 
+  const links = [
+    { to: '/', label: 'Home' },
+    { to: '/portfolio', label: 'Showreel' },
+    { to: '/about', label: 'About' },
+    { to: '/contact', label: 'Contact' },
+    { to: '/shop', label: 'Shop' }
+  ];
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-white shadow-md py-3' : 'bg-transparent py-5'
-    }`}>
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link 
-          to="/" 
-          className={`text-xl tracking-wider ${scrolled ? 'text-black' : 'text-white'}`}
-        >
-          ZENO MEDIA
-        </Link>
-        
-        <div className="flex space-x-8 items-center">
-          <NavLink to="/" scrolled={scrolled} active={isActive('/')}>Home</NavLink>
-          <NavLink to="/showreel" scrolled={scrolled} active={isActive('/showreel')}>Showreel</NavLink>
-          <NavLink to="/about" scrolled={scrolled} active={isActive('/about')}>About</NavLink>
-          <NavLink to="/contact" scrolled={scrolled} active={isActive('/contact')}>Contact</NavLink>
-          <NavLink to="/blog" scrolled={scrolled} active={isActive('/blog')}>Blog</NavLink>
-          <NavLink to="/shop" scrolled={scrolled} active={isActive('/shop')}>Shop</NavLink>
-          
-          {currentUser && currentUser.email === ADMIN_EMAIL && (
-            <NavLink to="/admin-7x91k" scrolled={scrolled}>Admin</NavLink>
-          )}
-          
-          {currentUser ? (
-            <button 
-              onClick={logout}
-              className={`text-sm ${scrolled ? 'text-black' : 'text-white'} hover:opacity-70 transition`}
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/95 border-b border-[#3e3324]">
+      <div className="container mx-auto px-4 h-24 flex items-center justify-center relative">
+        <div className="flex items-center gap-10">
+          {links.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`text-base font-serif italic transition ${
+                isActive(link.to) ? 'text-[#b8955d]' : 'text-white hover:text-[#b8955d]'
+              }`}
             >
-              Logout
-            </button>
-          ) : (
-            <NavLink to="/login" scrolled={scrolled}>Login</NavLink>
-          )}
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        <Link
+          to="/shop"
+          className="absolute right-4 md:right-8 text-[#b8955d] hover:text-white transition flex items-center gap-2"
+          aria-label="Open cart"
+        >
+          <ShoppingBag className="w-7 h-7" />
+          <span className="text-lg">0</span>
+        </Link>
         </div>
       </div>
     </nav>
-  );
-}
-
-function NavLink({ to, children, scrolled, active }) {
-  return (
-    <Link 
-      to={to} 
-      className={`text-sm tracking-wide transition ${
-        scrolled ? 'text-black' : 'text-white'
-      } ${active ? 'font-bold' : 'hover:opacity-70'}`}
-    >
-      {children}
-    </Link>
   );
 }
